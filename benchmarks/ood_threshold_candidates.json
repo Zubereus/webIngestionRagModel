@@ -1,0 +1,182 @@
+[
+  {
+    "case_id": "ood-01",
+    "type": "unrelated_domain",
+    "split": "dev",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Thủ tục đổi giấy phép lái xe ô tô tại Việt Nam gồm những gì?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-02",
+    "type": "unrelated_domain",
+    "split": "dev",
+    "language": "en",
+    "collection": "research",
+    "query": "How much protein should an adult eat each day?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-03",
+    "type": "unrelated_domain",
+    "split": "test",
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "How do I deploy a PostgreSQL database to Amazon RDS?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-04",
+    "type": "unrelated_domain",
+    "split": "test",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cách tính thuế thu nhập cá nhân cho người làm tự do như thế nào?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-05",
+    "type": "uncovered_detail",
+    "split": "dev",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Nếu hồ sơ xin cấp hộ chiếu bị từ chối thì tôi khiếu nại ở đâu và trong bao lâu?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-06",
+    "type": "uncovered_detail",
+    "split": "dev",
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "How do I implement OAuth2 password authentication with JWT in FastAPI?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-07",
+    "type": "uncovered_detail",
+    "split": "test",
+    "language": "en",
+    "collection": "research",
+    "query": "What is the measured TensorRT latency of YOLO27-s on a Jetson Orin Nano?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-08",
+    "type": "uncovered_detail",
+    "split": "test",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Tôi có thể nhận hộ chiếu tại nhà bằng chuyển phát nhanh và chọn giờ giao cụ thể không?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-09",
+    "type": "user_specific_live_state",
+    "split": "dev",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Hồ sơ cấp hộ chiếu tôi nộp hôm qua đã được duyệt chưa?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-10",
+    "type": "user_specific_live_state",
+    "split": "dev",
+    "language": "en",
+    "collection": "research",
+    "query": "Which YOLO model did I last run in my project, and what were its results?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-11",
+    "type": "user_specific_live_state",
+    "split": "test",
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Why did my FastAPI server crash at 10:30 this morning?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-12",
+    "type": "user_specific_live_state",
+    "split": "test",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cơ quan xuất nhập cảnh đã nhận được hồ sơ hộ chiếu gửi qua bưu điện của tôi chưa?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-13",
+    "type": "time_sensitive",
+    "split": "dev",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Hiện nay thời gian chờ lịch hẹn làm hộ chiếu tại Hà Nội là bao lâu?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-14",
+    "type": "time_sensitive",
+    "split": "dev",
+    "language": "en",
+    "collection": "research",
+    "query": "What is the newest YOLO model released after the overview in this collection?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-15",
+    "type": "time_sensitive",
+    "split": "test",
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What is the latest stable FastAPI version available today?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-16",
+    "type": "time_sensitive",
+    "split": "test",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Lệ phí cấp thị thực điện tử hiện tại có thay đổi trong tháng này không?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-17",
+    "type": "unsupported_recommendation_or_action",
+    "split": "dev",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Tôi bay vào ngày mai và chưa chuẩn bị đủ giấy tờ, bạn hãy chọn giúp tôi cách xin hộ chiếu nhanh nhất.",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-18",
+    "type": "unsupported_recommendation_or_action",
+    "split": "dev",
+    "language": "en",
+    "collection": "research",
+    "query": "Which object detector should I deploy in a safety-critical autonomous vehicle, and can you certify it is safe?",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-19",
+    "type": "unsupported_recommendation_or_action",
+    "split": "test",
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Rewrite my FastAPI application to fix its production errors.",
+    "expected_scope": "out_of_scope"
+  },
+  {
+    "case_id": "ood-20",
+    "type": "unsupported_recommendation_or_action",
+    "split": "test",
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Hãy đăng nhập Cổng dịch vụ công và nộp hồ sơ xin cấp hộ chiếu thay tôi.",
+    "expected_scope": "out_of_scope"
+  }
+]

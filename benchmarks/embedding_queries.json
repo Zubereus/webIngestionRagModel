@@ -1,0 +1,122 @@
+[
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How does YOLO27 use different architectures for its small and large model sizes?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:10"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What training strategy improves foreground alignment in compact YOLO27 detectors?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:11"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What architecture do YOLO27 medium and large variants use?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:12"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What is YOLO26's key change to Distribution Focal Loss?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:14"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "Which training methods accompany YOLO26's NMS-free design?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:15"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How does YOLO11 balance detection accuracy and device efficiency?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:16"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "Why did YOLOv8 introduce a decoupled detection head?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:17"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How did YOLOv5 encourage adoption among Python developers?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:18"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What does mAP at IoU thresholds from 0.50 to 0.95 measure on COCO?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:19"]
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "In object detection, what do precision and recall measure?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:24"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Thời hạn giải quyết cấp hộ chiếu phổ thông ở cấp trung ương là bao lâu?",
+    "relevant_chunk_ids": ["b3b800f9d0533e5c:13"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cấp hộ chiếu phổ thông ở cấp tỉnh mất bao nhiêu ngày làm việc?",
+    "relevant_chunk_ids": ["b0223ad6b55747eb:12"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Thủ tục cấp hộ chiếu ở cấp trung ương có mất lệ phí không?",
+    "relevant_chunk_ids": ["b3b800f9d0533e5c:15"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Trẻ dưới 14 tuổi chưa có mã số định danh cần giấy tờ gì để xin hộ chiếu ở cấp tỉnh?",
+    "relevant_chunk_ids": ["b0223ad6b55747eb:14"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người chưa đủ 14 tuổi dùng mẫu tờ khai hộ chiếu nào?",
+    "relevant_chunk_ids": ["b0223ad6b55747eb:15"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người bị mất hộ chiếu phải gửi đơn trình báo trong thời hạn bao lâu?",
+    "relevant_chunk_ids": ["68da930c6c6d2e4f:2"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Đơn trình báo mất hộ chiếu phổ thông sử dụng mẫu nào?",
+    "relevant_chunk_ids": ["68da930c6c6d2e4f:11"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Thị thực điện tử do cơ quan, tổ chức đề nghị được giải quyết trong bao lâu?",
+    "relevant_chunk_ids": ["8ce915c2b7b4b9f3:7"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Lệ phí thị thực điện tử một lần và nhiều lần theo đề nghị của tổ chức là bao nhiêu?",
+    "relevant_chunk_ids": ["8ce915c2b7b4b9f3:8"]
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người nước ngoài tự đề nghị cấp thị thực điện tử mất bao lâu?",
+    "relevant_chunk_ids": ["912b9748fea473ae:6"]
+  }
+]

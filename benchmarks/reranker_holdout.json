@@ -1,0 +1,282 @@
+[
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What changes did YOLOv2 introduce to improve detection across object sizes?",
+    "relevant_chunk_ids": ["a446e1491fe7feae:2"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Which HTTP methods can be used to define a FastAPI path operation?",
+    "relevant_chunk_ids": ["94c74a9258b3dd5f:17"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "Which three potential fields are combined for autonomous-vehicle path planning?",
+    "relevant_chunk_ids": ["4c40dbe48ced6234:7"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How does the obstacle potential field help an autonomous vehicle?",
+    "relevant_chunk_ids": ["4c40dbe48ced6234:10"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What information do vehicles share in the proposed interactive speed optimization approach?",
+    "relevant_chunk_ids": ["4c40dbe48ced6234:12"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Which URL opens FastAPI's interactive API documentation after starting the example server?",
+    "relevant_chunk_ids": ["94c74a9258b3dd5f:2"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Which URL opens the alternative ReDoc documentation interface?",
+    "relevant_chunk_ids": ["94c74a9258b3dd5f:3"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What does the OpenAPI schema describe about a FastAPI application?",
+    "relevant_chunk_ids": ["94c74a9258b3dd5f:6"],
+    "answerable": true
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What is the current retail price of an NVIDIA RTX 5090 in Vietnam?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What uptime guarantee and support response time does FastAPI Cloud contractually promise?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cơ sở lưu trú cần khai báo tạm trú cho người nước ngoài vào thời điểm nào?",
+    "relevant_chunk_ids": ["3d3938290fcc6a14:10"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Trang khai báo tạm trú trực tuyến hoạt động theo khung thời gian nào?",
+    "relevant_chunk_ids": ["3d3938290fcc6a14:6"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người nước ngoài tự đề nghị cấp thị thực điện tử cần khai theo mẫu nào?",
+    "relevant_chunk_ids": ["912b9748fea473ae:9"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người xin giấy miễn thị thực cần chứng minh điều kiện quan hệ gia đình hoặc nguồn gốc nào?",
+    "relevant_chunk_ids": ["c9972798b5d0c4c6:3"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Tờ khai xin cấp giấy miễn thị thực có mã mẫu nào?",
+    "relevant_chunk_ids": ["c9972798b5d0c4c6:16"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Lệ phí cấp giấy phép xuất nhập cảnh cho người không quốc tịch là bao nhiêu?",
+    "relevant_chunk_ids": ["f2ab4093fbbd6bce:12"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cơ quan, tổ chức tại Việt Nam phải đăng nhập tài khoản ở đâu để đề nghị cấp thị thực điện tử?",
+    "relevant_chunk_ids": ["8ce915c2b7b4b9f3:6"],
+    "answerable": true
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Tỷ giá USD/VND chính thức áp dụng hôm nay để quy đổi lệ phí thị thực là bao nhiêu?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Hồ sơ của tôi tại tỉnh hiện được cán bộ nào xử lý và có số điện thoại cá nhân gì?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Năm nay tỉnh nào có số lượt khách xuất nhập cảnh qua biên giới cao nhất?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How many parameters does the YOLO27n checkpoint contain?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What exact GPU and batch size were used to measure YOLO27 inference latency?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "What numerical value of sigma did the autonomous-driving study use for the lane-divider potential?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "How many object queries are used by the YOLO27m transformer decoder?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "research",
+    "query": "Which optimizer, learning rate, and training schedule were used for the YOLO27 experiments?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What is the maximum request-body upload size enforced by FastAPI by default?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What is the monthly price of the paid FastAPI Cloud plan?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "What is FastAPI Cloud's contractual uptime SLA and incident response time?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "Which OAuth provider and JWT expiration policy does the FastAPI example configure?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "en",
+    "collection": "ai_tech",
+    "query": "How many simultaneous WebSocket connections are included in FastAPI Cloud's free tier?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Hộ chiếu phổ thông cấp cho người từ đủ 14 tuổi có thời hạn sử dụng bao nhiêu năm?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Phí chuyển phát hộ chiếu phổ thông về nhà tại tỉnh là bao nhiêu đồng?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Thị thực điện tử Việt Nam cho phép người nước ngoài lưu trú tối đa bao nhiêu ngày?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Ảnh tải lên khi xin thị thực điện tử phải có độ phân giải tối thiểu bao nhiêu pixel?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Cơ sở lưu trú bị phạt bao nhiêu tiền nếu khai báo tạm trú cho khách nước ngoài chậm một ngày?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người dân có thể xin cấp hộ chiếu tại tỉnh khác nơi đăng ký thường trú hay không?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người nước ngoài đang ở Việt Nam phải nộp hồ sơ gì để gia hạn thị thực điện tử?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Giấy phép xuất nhập cảnh cấp cho người không quốc tịch có giá trị trong bao nhiêu năm?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Giấy thông hành biên giới Việt Nam–Lào được cấp có thời hạn tối đa bao lâu?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  },
+  {
+    "language": "vi",
+    "collection": "immigration",
+    "query": "Người xin thị thực điện tử cần nộp hồ sơ trước ngày nhập cảnh tối thiểu bao nhiêu ngày?",
+    "relevant_chunk_ids": [],
+    "answerable": false
+  }
+]

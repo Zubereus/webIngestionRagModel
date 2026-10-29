@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: oklch(98.2% .004 250);
+    --surface: oklch(99.5% .003 250);
+    --surface-2: oklch(95.6% .008 255);
+    --rail: oklch(94.5% .016 258);
+    --line: oklch(88.5% .010 255);
+    --text: oklch(24% .025 258);
+    --text-muted: oklch(46% .025 258);
+    --accent: oklch(45% .16 262);
+    --accent-soft: oklch(93.5% .035 262);
+    --accent-fg: oklch(99% .004 262);
+    --mark: oklch(92% .13 98);
+    --ok: oklch(44% .11 155);
+    --warn: oklch(47% .11 65);
+    --err: oklch(48% .17 25);
+    --radius-control: 6px;
+    --radius-panel: 10px;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --bg: oklch(18.5% .022 258);
+    --surface: oklch(22% .024 258);
+    --surface-2: oklch(26% .026 258);
+    --rail: oklch(15.5% .026 260);
+    --line: oklch(34% .028 258);
+    --text: oklch(93% .010 250);
+    --text-muted: oklch(72% .020 255);
+    --accent: oklch(76% .12 262);
+    --accent-soft: oklch(30% .06 262);
+    --accent-fg: oklch(16% .03 262);
+    --mark: oklch(44% .09 95);
+    --ok: oklch(74% .13 155);
+    --warn: oklch(80% .13 85);
+    --err: oklch(74% .15 25);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--accent);
+  }
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-rail: var(--rail);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-fg: var(--accent-fg);
+  --color-mark: var(--mark);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-err: var(--err);
+
+  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+  --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --radius-ctrl: 6px;
+  --radius-pnl: 10px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.passage {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.75;
+  max-width: 62ch;
+}
+
+.citation-popover {
+  position: fixed;
+  z-index: 60;
+  width: min(18rem, calc(100vw - 1rem));
+}
+
+.citation-preview-snippet {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.passage mark {
+  background: var(--mark);
+  color: var(--text);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  margin: 0 1px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  cursor: pointer;
+  vertical-align: baseline;
+  transition: background-color 140ms ease-out, color 140ms ease-out;
+}
+
+.citation-chip:hover,
+.citation-chip[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.composer-input:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
