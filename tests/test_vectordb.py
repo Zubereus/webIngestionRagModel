@@ -12,6 +12,16 @@ from webrag.store.catalog import StorageManager
 
 
 class VectorDBRetrievalTests(unittest.TestCase):
+    def test_clear_embedding_cache_removes_database_adjacent_to_chroma(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = object.__new__(VectorDBManager)
+            manager.embedding_cache_path = Path(temp_dir) / "embedding-cache.sqlite3"
+            manager.embedding_cache_path.touch()
+
+            manager.clear_embedding_cache()
+
+            self.assertFalse(manager.embedding_cache_path.exists())
+
     def test_tokens_match_vietnamese_with_or_without_diacritics(self):
         self.assertEqual(
             VectorDBManager._tokens("hộ chiếu"),
@@ -137,6 +147,7 @@ class VectorDBRetrievalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             manager = object.__new__(VectorDBManager)
             manager.client = chromadb.EphemeralClient()
+            manager.embedding_cache_path = Path(temp_dir) / "embedding-cache.sqlite3"
             collection = manager.get_collection("default")
             collection.upsert(
                 ids=[f"doc-1:{ordinal}" for ordinal in range(5)],

@@ -84,6 +84,8 @@ ollama pull qwen2.5:3b
 
 The active embedding model defaults to `bge-m3:latest`; `WEBRAG_EMBED_MODEL` can override it. The app uses `data/chroma_bge_m3` for its active index and keeps the previous index under `data/chroma`.
 
+Document embeddings are cached in a separate SQLite file adjacent to the active Chroma directory (by default, `data/chroma_bge_m3_embedding_cache.sqlite3`). The cache key includes the exact model name and prefixed text sent to Ollama. If you pull a new model version under the same tag, delete this cache file so the app does not reuse vectors from the previous model; **Clear library** also deletes it.
+
 ## Use the CLI
 
 ```shell

@@ -10,7 +10,7 @@ import chromadb
 from tqdm import tqdm
 
 from webrag.index.embed import (
-    EMBEDDING_BATCH_SIZE,
+    embedding_cache_path,
     get_embedding,
     get_embeddings_batch,
 )
@@ -27,6 +27,7 @@ class VectorDBManager:
     def __init__(self, persist_dir: Path | str = DEFAULT_CHROMA_DIR):
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
+        self.embedding_cache_path = embedding_cache_path(self.persist_dir)
         self.client = chromadb.PersistentClient(path=str(self.persist_dir))
 
     def get_collection(self, collection_name: str):
@@ -37,6 +38,11 @@ class VectorDBManager:
             name=clean_name,
             metadata={"hnsw:space": "cosine"},
         )
+
+    def clear_embedding_cache(self) -> None:
+        """Remove cached vectors associated with this Chroma directory."""
+        if self.embedding_cache_path.exists():
+            self.embedding_cache_path.unlink()
 
     def index_chunks_file(self, chunks_file: Path | str, force: bool = False) -> dict[str, int]:
         """
@@ -123,13 +129,15 @@ class VectorDBManager:
                 documents.append(chunk["text"])
                 metadatas.append(chunk["_vector_metadata"])
 
-            embeddings: list[list[float]] = []
-            for start in tqdm(
-                range(0, len(pending), EMBEDDING_BATCH_SIZE),
+            with tqdm(
+                total=len(pending),
                 desc=f"Embedding '{coll_name}'",
-            ):
-                batch_texts = embedding_texts[start : start + EMBEDDING_BATCH_SIZE]
-                embeddings.extend(get_embeddings_batch(batch_texts))
+            ) as progress:
+                embeddings = get_embeddings_batch(
+                    embedding_texts,
+                    cache_path=self.embedding_cache_path,
+                    progress_callback=progress.update,
+                )
 
             if pending:
                 collection.upsert(
@@ -155,7 +163,8 @@ class VectorDBManager:
         for collection_name, items in grouped.items():
             collection = self.get_collection(collection_name)
             embeddings = get_embeddings_batch(
-                [item.get("embed_text") or item["text"] for item in items]
+                [item.get("embed_text") or item["text"] for item in items],
+                cache_path=self.embedding_cache_path,
             )
             collection.upsert(
                 ids=[item["chunk_id"] for item in items],

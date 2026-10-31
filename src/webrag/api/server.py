@@ -1773,6 +1773,7 @@ def clear_library():
         conn.commit()
 
     vector_db.delete_all()
+    vector_db.clear_embedding_cache()
     for path in (storage.documents_file, storage.chunks_file):
         if path.exists():
             path.unlink()
