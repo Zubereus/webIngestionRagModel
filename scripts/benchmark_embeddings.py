@@ -43,18 +43,30 @@ def validate_cases(
         raise ValueError("The benchmark query set is empty.")
 
     for case in cases:
-        targets = case.get("relevant_chunk_ids")
-        if not isinstance(targets, list) or not targets:
-            raise ValueError(f"Benchmark case has no target passages: {case!r}")
-        for chunk_id in targets:
-            chunk = chunks_by_id.get(chunk_id)
-            if chunk is None:
-                raise ValueError(f"Benchmark target passage not found: {chunk_id}")
-            if chunk.get("collection", "default") != case["collection"]:
+        expected_url = case.get("expected_url")
+        answerable = case.get("answerable", True)
+        if not answerable:
+            if expected_url is not None or case.get("answer") is not None:
                 raise ValueError(
-                    f"Target passage {chunk_id} is not in collection "
-                    f"{case['collection']!r}."
+                    "Unanswerable benchmark cases must not have a target URL "
+                    "or answer."
                 )
+            continue
+        if not isinstance(expected_url, str) or not expected_url:
+            raise ValueError(
+                f"Benchmark case has no expected URL: {case!r}"
+            )
+        if not isinstance(case.get("answer"), str) or not case["answer"].strip():
+            raise ValueError(f"Benchmark case has no answer string: {case!r}")
+        if not any(
+            chunk.get("url") == expected_url
+            and chunk.get("collection", "default") == case["collection"]
+            for chunk in chunks_by_id.values()
+        ):
+            raise ValueError(
+                f"Benchmark target URL not found in collection "
+                f"{case['collection']!r}: {expected_url}"
+            )
 
 
 def cosine_similarity(left: list[float], right: list[float]) -> float:
@@ -129,10 +141,12 @@ def hybrid_ranking(
 def target_rank(
     ranking: list[int],
     chunks: list[dict[str, Any]],
-    relevant_ids: set[str],
+    expected_url: str | None,
 ) -> int | None:
+    if expected_url is None:
+        return None
     for rank, index in enumerate(ranking, start=1):
-        if chunks[index]["chunk_id"] in relevant_ids:
+        if chunks[index].get("url") == expected_url:
             return rank
     return None
 
@@ -178,8 +192,9 @@ def benchmark_model(
         collection = case["collection"]
         chunks = chunks_by_collection[collection]
         start = time.perf_counter()
+        question = case["question"]
         query_vector = get_embedding(
-            case["query"],
+            question,
             model=model,
             timeout=OLLAMA_BENCHMARK_TIMEOUT_SECONDS,
         )
@@ -187,15 +202,15 @@ def benchmark_model(
         dense_order = dense_ranking(
             query_vector, chunks, corpus_vectors[collection]
         )
-        hybrid_order = hybrid_ranking(case["query"], chunks, dense_order, top_k)
-        relevant_ids = set(case["relevant_chunk_ids"])
+        hybrid_order = hybrid_ranking(question, chunks, dense_order, top_k)
+        expected_url = case.get("expected_url")
         case_results.append(
             {
                 "language": case["language"],
-                "query": case["query"],
-                "relevant_chunk_ids": sorted(relevant_ids),
-                "dense_rank": target_rank(dense_order, chunks, relevant_ids),
-                "hybrid_rank": target_rank(hybrid_order, chunks, relevant_ids),
+                "question": question,
+                "expected_url": expected_url,
+                "dense_rank": target_rank(dense_order, chunks, expected_url),
+                "hybrid_rank": target_rank(hybrid_order, chunks, expected_url),
             }
         )
 
@@ -301,7 +316,7 @@ def main() -> None:
             for item in details:
                 print(
                     f"  [{item['language']}] dense={item['dense_rank']} "
-                    f"hybrid={item['hybrid_rank']} | {item['query']}"
+                    f"hybrid={item['hybrid_rank']} | {item['question']}"
                 )
 
     if args.output:

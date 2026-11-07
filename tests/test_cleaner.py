@@ -1,3 +1,4 @@
+from pathlib import Path
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -8,6 +9,8 @@ from webrag.extract.cleaner import (
     extract_document,
     merge_collapsed_sections,
     normalize_markdown,
+    strip_inline_html,
+    unescape_entities,
 )
 from webrag.models import RawPage
 
@@ -183,6 +186,123 @@ class DocumentTitleTests(unittest.TestCase):
 
         self.assertIsNotNone(document)
         self.assertEqual(document.markdown, expected)
+
+    def test_extract_document_strips_inline_font_and_span_markup(self):
+        markdown = (
+            "A <font color=\"#75507B\">styled</font> "
+            "<span style=\"color: red\">inline</span> "
+            "<u style=\"text-decoration: underline\"><b>formatted</b></u> fact. "
+            + ("More extracted text. " * 10)
+        )
+        metadata = SimpleNamespace(
+            title="Example procedure",
+            author=None,
+            date=None,
+            language="en",
+        )
+        with (
+            patch("webrag.extract.cleaner.trafilatura.extract", return_value=markdown),
+            patch(
+                "webrag.extract.cleaner.trafilatura.extract_metadata",
+                return_value=metadata,
+            ),
+        ):
+            document = extract_document(self.page)
+
+        self.assertIsNotNone(document)
+        self.assertIn("A styled inline formatted fact.", document.markdown)
+        self.assertNotRegex(document.markdown, r"</?(?:font|span|u|b)\b")
+
+    def test_extract_document_removes_standalone_affiliation_markers(self):
+        markdown = (
+            "###### Abstract\n\n"
+            "<sup>†</sup>\n\n"
+            "<sup>†</sup>\n\n"
+            "<sup>∗</sup>University affiliation.\n\n"
+            "An abstract sentence with an inline citation <sup>1</sup>. "
+            + ("More extracted text. " * 10)
+        )
+        metadata = SimpleNamespace(
+            title="Example paper",
+            author=None,
+            date=None,
+            language="en",
+        )
+        with (
+            patch("webrag.extract.cleaner.trafilatura.extract", return_value=markdown),
+            patch(
+                "webrag.extract.cleaner.trafilatura.extract_metadata",
+                return_value=metadata,
+            ),
+        ):
+            document = extract_document(self.page)
+
+        self.assertIsNotNone(document)
+        self.assertNotIn("<sup>†</sup>", document.markdown)
+        self.assertIn("<sup>∗</sup>University affiliation.", document.markdown)
+        self.assertIn("citation <sup>1</sup>", document.markdown)
+
+    def test_strip_inline_html_preserves_inner_text(self):
+        self.assertEqual(
+            strip_inline_html(
+                '<font color="red">one <span style="x"><b>two</b></span></font>'
+            ),
+            "one two",
+        )
+
+    def test_fastapi_first_steps_snapshot_strips_font_and_span_preserving_text(self):
+        snapshot_path = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "raw"
+            / "94c74a9258b3dd5f.html"
+        )
+        if not snapshot_path.is_file():
+            self.skipTest("FastAPI first-steps snapshot not found.")
+        page = RawPage(
+            url="https://fastapi.tiangolo.com/tutorial/first-steps/",
+            final_url="https://fastapi.tiangolo.com/tutorial/first-steps/",
+            status=200,
+            content_type="text/html",
+            body=snapshot_path.read_bytes(),
+            fetched_at="2026-01-01T00:00:00+00:00",
+        )
+        document = extract_document(page)
+        self.assertIsNotNone(document)
+        self.assertNotIn("<font", document.markdown)
+        self.assertNotIn("<span", document.markdown)
+        self.assertIn("uv run fastapi", document.markdown)
+        self.assertIn("FastAPI", document.markdown)
+
+    def test_matt_26279_snapshot_unescapes_entities_preserving_sample_form_text(self):
+        snapshot_path = (
+            Path(__file__).resolve().parents[1]
+            / "data"
+            / "raw"
+            / "c9972798b5d0c4c6.html"
+        )
+        if not snapshot_path.is_file():
+            self.skipTest("matt=26279 snapshot not found.")
+        page = RawPage(
+            url="https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26279",
+            final_url="https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26279",
+            status=200,
+            content_type="text/html",
+            body=snapshot_path.read_bytes(),
+            fetched_at="2026-01-01T00:00:00+00:00",
+        )
+        document = extract_document(page)
+        self.assertIsNotNone(document)
+        self.assertNotIn("&amp;amp;", document.markdown)
+        self.assertIn("mẫu NA9", document.markdown)
+
+    def test_unescape_entities_preserves_code_fences(self):
+        text = "outside &amp;amp;\n```\ninside &amp;amp;\n```\noutside again &amp;amp;"
+        unescaped = unescape_entities(text)
+        self.assertEqual(
+            unescaped,
+            "outside &\n```\ninside &amp;amp;\n```\noutside again &",
+        )
 
     def test_collapsed_sections_become_retrievable_chunk_headings(self):
         html = """

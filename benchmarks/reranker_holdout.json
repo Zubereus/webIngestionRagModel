@@ -2,281 +2,321 @@
   {
     "language": "en",
     "collection": "research",
-    "query": "What changes did YOLOv2 introduce to improve detection across object sizes?",
-    "relevant_chunk_ids": ["a446e1491fe7feae:2"],
-    "answerable": true
+    "answerable": true,
+    "question": "What changes did YOLOv2 introduce to improve detection across object sizes?",
+    "expected_url": "https://arxiv.org/html/2510.09653v4",
+    "answer": "YOLOv2 extended the original formulation through batch normalization, anchor boxes, dimension clustering, and multi-scale training, improving robustness across object sizes Redmon and Farhadi (2017). YOLOv3 subsequently introduced the substantially deeper Darknet-53 backbone and multi-scale predictions, establishing an influential balance between computational efficiency and detection accuracy Redmon and Farhadi (2018); Apostolidis and Papakostas (2025); Sapkota et al. (2025b); Edozie et al. (2025). As application requirements expanded toward aerial imagery, agriculture, medical analysis, industrial inspection, and other challenging environments, the YOLO architecture diversified further. YOLOv4 combined CSPNet-based feature extraction with improved activation functions, feature aggregation, mosaic augmentation, Complete Intersection over Union (CIoU), and other “bag-of-freebies” and “bag-of-specials” strategies Bochkovskiy et al. (2020). These developments established several principles that remained influential in later YOLO systems: hierarchical CNN feature extraction, multi-resolution feature fusion, dense prediction, and joint optimization of accuracy and latency.\nWithin this broader evolution, Ultralytics YOLOv5 established a modular, PyTorch-oriented implementation and deployment ecosystem that substantially simplified model training, customization, validation, and export. Its engineering-oriented design helped expand YOLO from a detector architecture into a reusable computer-vision framework supporting practical deployment across heterogeneous hardware. Parallel developments such as YOLOv6 and YOLOv7 introduced efficient architectural components, model reparameterization, and improved training strategies to further strengthen real-time performance Li et al. (2022a); Wang et al. (2023a). Ultralytics later introduced YOLOv8 with a decoupled detection head and anchor-free prediction strategy, reducing dependence on predefined anchor configurations while providing a more unified foundation for multiple computer-vision tasks Sohan et al. (2024); Farooq et al. (2024). The evolution of these capabilities and their expansion across detection, segmentation, classification, pose, and oriented detection are illustrated in Figure 1."
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "Which HTTP methods can be used to define a FastAPI path operation?",
-    "relevant_chunk_ids": ["94c74a9258b3dd5f:17"],
-    "answerable": true
+    "answerable": true,
+    "question": "Which HTTP methods can be used to define a FastAPI path operation?",
+    "expected_url": "https://fastapi.tiangolo.com/tutorial/first-steps",
+    "answer": "\"Operation\" here refers to one of the HTTP \"methods\".\nOne of:\n- `POST`\n- `GET`\n- `PUT`\n- `DELETE`\n...and the more exotic ones:\n- `OPTIONS`\n- `HEAD`\n- `PATCH`\n- `TRACE`\nIn the HTTP protocol, you can communicate to each path using one (or more) of these \"methods\".\nWhen building APIs, you normally use these specific HTTP methods to perform a specific action.\nNormally you use:\n- `POST`: to create data.\n- `GET`: to read data.\n- `PUT`: to update data.\n- `DELETE`: to delete data.\nSo, in OpenAPI, each of the HTTP methods is called an \"operation\".\nWe are going to call them \"**operations**\" too."
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "Which three potential fields are combined for autonomous-vehicle path planning?",
-    "relevant_chunk_ids": ["4c40dbe48ced6234:7"],
-    "answerable": true
+    "answerable": true,
+    "question": "Which three potential fields are combined for autonomous-vehicle path planning?",
+    "expected_url": "https://arxiv.org/html/2306.06987v1",
+    "answer": "When applying the PF algorithm to road structures, the potential functions are comprised of three distinct parts: the attractive PF, the road PF, and the obstacle PF."
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "How does the obstacle potential field help an autonomous vehicle?",
-    "relevant_chunk_ids": ["4c40dbe48ced6234:10"],
-    "answerable": true
+    "answerable": true,
+    "question": "How does the obstacle potential field help an autonomous vehicle?",
+    "expected_url": "https://arxiv.org/html/2306.06987v1",
+    "answer": "The PF for an obstacle serves two main purposes. Firstly, it creates a safety zone around the obstacle by assigning a high-risk value, which helps keep the host vehicle at a safe distance. Secondly, the PF generates the path for a lane change, usually along the edge of the obstacle’s PF. Therefore, the following obstacle potential function $U_{OB}$ is indicated \\[18\\]:\n| | $\\displaystyle U_{OB}=A_{obs}\\exp{[-\\frac{C_{1}}{2}(\\frac{(X-X_{o})^{2}}{\\sigma_{x}}+\\frac{(Y-Y_{o})^{2}}{\\sigma_{y}}-C_{2})]},$ | | (4) |\nwhere\n| | | $\\displaystyle C_{1}=1-\\psi_{o}^{2},\\quad C_{2}=\\frac{2\\psi_{o}(X-X_{o})(Y-Y_{o})}{\\sigma_{x}\\sigma_{y}},$ | |\n| | | $\\displaystyle\\sigma_{x}=D_{min}\\sqrt{-\\frac{1}{\\ln{U}}},\\quad\\sigma_{y}=\\sqrt{-\\frac{(Y-Y_{o})^{2}}{2\\ln{\\frac{\\epsilon}{A_{obs}}}}},$ | |\n| | | $\\displaystyle D_{min}=\\frac{Mv^{2}}{2a_{b}}-\\frac{M_{o}v_{o}^{2}}{2a_{b,o}}+\\frac{l_{fr}+l_{fr,o}}{2}.$ | |\nwith $X_{o}$ and $Y_{o}$ denoting the longitudinal and lateral position of the obstacle vehicle, respectively. $\\psi_{o}$ means the heading angle of the obstacle vehicle, and $\\epsilon$ is a minimum positive factor. $M$ and $M_{o}$ refer to the weights of the host and obstacle vehicles, respectively. $v$ and $v_{o}$ denote the longitudinal speeds of the host and obstacle vehicles, respectively. $a_{b}$ and $a_{b,o}$ are the maximum braking deceleration of the host and obstacle vehicles, respectively. $l_{fr}$ and $l_{fr,o}$ represent the wheelbase of the host and obstacle vehicles, respectively."
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "What information do vehicles share in the proposed interactive speed optimization approach?",
-    "relevant_chunk_ids": ["4c40dbe48ced6234:12"],
-    "answerable": true
+    "answerable": true,
+    "question": "What information do vehicles share in the proposed interactive speed optimization approach?",
+    "expected_url": "https://arxiv.org/html/2306.06987v1",
+    "answer": "To consider the impact of other AVs’ PF, we propose an interactive speed optimization with the shared local path via V2V communication for cooperative driving. First, we introduce the cubic polynomial to handle the discrete waypoints, resulting in a smooth and easy-to-follow path \\[19, 20\\], as denoted below.\n| | $$ f(x)=a_{0}+a_{1}x+a_{2}x^{2}+a_{3}x^{3}, $$ | | (8) |\nwhere $a_{0},\\;a_{1},\\;a_{2},\\;a_{3}$ are the parameters of the cubic polynomial and $x$ is the waypoints. Next, we should reshape the Eq. (8) to be a quadratic programming (QP) form for the optimization with vehicle dynamics constraints:\n| | $\\displaystyle\\mathbf{a}^{*}\\,=\\,$ | $\\displaystyle\\arg\\min_{\\mathbf{a}}\\frac{1}{2}\\left(\\textbf{X}\\mathbf{a}-\\textbf{Y}\\right)^{T}W\\left(\\textbf{X}\\mathbf{a}-\\textbf{Y}\\right)$ | | (9) |\n| | $\\displaystyle\\mathrm{s.t.}\\quad$ | $\\displaystyle\\textbf{a}_{min}\\preceq\\textbf{a}\\preceq\\textbf{a}_{max}$ | | (9a) |\nwhere\n| | | $\\displaystyle\\textbf{{X}}=\\begin{bmatrix}1&x_{1}&{x_{1}}^{2}&{x_{1}}^{3}\\\\ 1&x_{2}&{x_{2}}^{2}&{x_{2}}^{3}\\\\ \\vdots&\\vdots&\\vdots&\\vdots\\\\ 1&x_{N}&{x_{N}}^{2}&{x_{N}}^{3}\\end{bmatrix},W=\\begin{bmatrix}w_{1}&0&\\cdots&0\\\\ 0&w_{2}&\\cdots&0\\\\ \\vdots&\\vdots&\\ddots&\\vdots\\\\ 0&0&\\cdots\\ &w_{N}\\end{bmatrix},$ | |\n| | | $\\displaystyle\\mathbf{a}=\\begin{bmatrix}a_{0}&a_{1}&a_{2}&a_{3}\\end{bmatrix}^{T},~\\textbf{{Y}}=\\begin{bmatrix}y_{1}&y_{2}&\\cdots&y_{N}\\end{bmatrix}^{T}.$ | |\nwhere $\\mathbf{a}$ denotes the optimal cubic coefficients and $(x_{N},\\;y_{N})$ represents the $N^{th}$ waypoint from the PF. $w_{N}$ is the weight. Note that at least 4 waypoints are needed for calculating a. $\\textbf{a}_{min,\\;max}$ is explained in \\[21\\]. After processing the local path according to Eq. (9), the next step is to compute the speed. To achieve this, we have formulated an objective function with reasonable constraints to obtain the optimal speed. The proposed objective function consists of three terms, which are shown below:\n| | $\\displaystyle\\centering\\min_{v_{1},\\cdots,v_{h}}w_{1}\\sum_{i=1}^{N}\\frac{X_{pf}^{i+1}-X_{pf}^{i}}{v_{i}}+w_{2}\\@add@centering$ | $\\displaystyle\\sum_{i=1}^{N}\\frac{1}{2}(v_{i}-V_{target})^{2}$ | | (10) |\n| | | $\\displaystyle+w_{3}\\sum_{i=1}^{N}\\ln U_{SLP}^{i}$ | | |\n| | $\\displaystyle s.t.\\ v_{i}\\in[0,\\ V_{i}^{max}],$ | | | (10a) |\nwhere\n| | | $\\displaystyle V_{i}^{max}=\\min(V_{limit},\\;\\sqrt{\\mu g/\\kappa}),$ | |\n| | | $\\displaystyle\\kappa=6a_{3}s+2a_{2}\\approx 2a_{2}$ | |"
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "Which URL opens FastAPI's interactive API documentation after starting the example server?",
-    "relevant_chunk_ids": ["94c74a9258b3dd5f:2"],
-    "answerable": true
+    "answerable": true,
+    "question": "Which URL opens FastAPI's interactive API documentation after starting the example server?",
+    "expected_url": "https://fastapi.tiangolo.com/tutorial/first-steps",
+    "answer": "Now go to http://127.0.0.1:8000/docs.\nYou will see the automatic interactive API documentation (provided by Swagger UI):"
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "Which URL opens the alternative ReDoc documentation interface?",
-    "relevant_chunk_ids": ["94c74a9258b3dd5f:3"],
-    "answerable": true
+    "answerable": true,
+    "question": "Which URL opens the alternative ReDoc documentation interface?",
+    "expected_url": "https://fastapi.tiangolo.com/tutorial/first-steps",
+    "answer": "And now, go to http://127.0.0.1:8000/redoc.\nYou will see the alternative automatic documentation (provided by ReDoc):"
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "What does the OpenAPI schema describe about a FastAPI application?",
-    "relevant_chunk_ids": ["94c74a9258b3dd5f:6"],
-    "answerable": true
+    "answerable": true,
+    "question": "What does the OpenAPI schema describe about a FastAPI application?",
+    "expected_url": "https://fastapi.tiangolo.com/tutorial/first-steps",
+    "answer": "In this case, OpenAPI is a specification that dictates how to define a schema of your API.\nThis schema definition includes your API paths, the possible parameters they take, etc."
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "What is the current retail price of an NVIDIA RTX 5090 in Vietnam?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What is the current retail price of an NVIDIA RTX 5090 in Vietnam?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "What uptime guarantee and support response time does FastAPI Cloud contractually promise?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What uptime guarantee and support response time does FastAPI Cloud contractually promise?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Cơ sở lưu trú cần khai báo tạm trú cho người nước ngoài vào thời điểm nào?",
-    "relevant_chunk_ids": ["3d3938290fcc6a14:10"],
-    "answerable": true
+    "answerable": true,
+    "question": "Cơ sở lưu trú cần khai báo tạm trú cho người nước ngoài vào thời điểm nào?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26265",
+    "answer": "Thực hiện khai báo ngay khi người nước ngoài đến đăng ký tạm trú."
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Trang khai báo tạm trú trực tuyến hoạt động theo khung thời gian nào?",
-    "relevant_chunk_ids": ["3d3938290fcc6a14:6"],
-    "answerable": true
+    "answerable": true,
+    "question": "Trang khai báo tạm trú trực tuyến hoạt động theo khung thời gian nào?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26265",
+    "answer": "Trực tuyến\n24 giờ/07 ngày Trực tuyến qua Trang thông tin điện tử hoặc Cổng dịch vụ công quốc gia hoặc Cổng dịch vụ công Bộ Công an."
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Người nước ngoài tự đề nghị cấp thị thực điện tử cần khai theo mẫu nào?",
-    "relevant_chunk_ids": ["912b9748fea473ae:9"],
-    "answerable": true
+    "answerable": true,
+    "question": "Người nước ngoài tự đề nghị cấp thị thực điện tử cần khai theo mẫu nào?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26277",
+    "answer": "Tên giấy tờ: + Thông tin đề nghị cấp thị thực điện tử (trên Trang thông tin cấp thị thực điện tử hoặc Cổng dịch vụ công quốc gia hoặc Cổng dịch vụ công Bộ Công an) theo mẫu NA1a ban hành kèm theo Thông tư số 22/2023/TT-BCA ngày 30/6/2023 của Bộ Công an. | Số lượng: Bản chính: 1 Bản sao: 0\nTên giấy tờ: + Ảnh mới chụp của người đề nghị cấp thị thực điện tử, kích cỡ ảnh 4 x 6cm, định dạng jpeg, kích thước ≤ 2 MB, mặt nhìn thẳng, không đội mũ, không đeo kính, trang phục lịch sự, phông ảnh nền trắng | Số lượng: Bản chính: 1 Bản sao: 0\nTên giấy tờ: Ảnh trang nhân thân hộ chiếu được tải lên Trang thông tin cấp thị thực điện tử theo quy định. | Số lượng: Bản chính: 0 Bản sao: 1"
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Người xin giấy miễn thị thực cần chứng minh điều kiện quan hệ gia đình hoặc nguồn gốc nào?",
-    "relevant_chunk_ids": ["c9972798b5d0c4c6:3"],
-    "answerable": true
+    "answerable": true,
+    "question": "Người xin giấy miễn thị thực cần chứng minh điều kiện quan hệ gia đình hoặc nguồn gốc nào?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26279",
+    "answer": "| \\* Số lượng hồ sơ: 01 (một) bộ. | | Bản chính: 1 Bản sao: 1 |\n\\+ Có hộ chiếu hoặc giấy tờ có giá trị đi lại quốc tế còn giá trị ít nhất 01 năm.\n+ Có giấy tờ chứng minh là người Việt Nam định cư ở nước ngoài và người nước ngoài là vợ, chồng, con của người Việt Nam định cư ở nước ngoài hoặc của công dân Việt Nam.\n+ Không thuộc các trường hợp chưa cho nhập cảnh và tạm hoãn xuất cảnh theo quy định tại Điều 21 và Điều 28 của Luật Nhập cảnh, xuất cảnh, quá cảnh, cư trú của người nước ngoài tại Việt Nam.\n- Luật 47/2014/QH13 **Số: 47/2014/QH13**\n- Luật 51/2019/QH14 **Số: 51/2019/QH14**\n- Nghị định 82/2015/NĐ-CP **Số: 82/2015/NĐ-CP**\n- Thông tư 04/2015/TT-BCA **Số: 04/2015/TT-BCA**\n- Thông tư 25/2021/TT-BTC **Số: 25/2021/TT-BTC**\n- Giấy miễn thị thực dán vào hộ chiếu hoặc cấp rời trong một số trường hợp đặc biệt"
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Tờ khai xin cấp giấy miễn thị thực có mã mẫu nào?",
-    "relevant_chunk_ids": ["c9972798b5d0c4c6:16"],
-    "answerable": true
+    "answerable": true,
+    "question": "Tờ khai xin cấp giấy miễn thị thực có mã mẫu nào?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26279",
+    "answer": "File mẫu:\nTờ khai đề nghị cấp giấy miễn thị thực &amp;amp;#40;mẫu NA9&amp;amp;#41; Tải về"
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Lệ phí cấp giấy phép xuất nhập cảnh cho người không quốc tịch là bao nhiêu?",
-    "relevant_chunk_ids": ["f2ab4093fbbd6bce:12"],
-    "answerable": true
+    "answerable": true,
+    "question": "Lệ phí cấp giấy phép xuất nhập cảnh cho người không quốc tịch là bao nhiêu?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26247",
+    "answer": "200.000đ"
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Cơ quan, tổ chức tại Việt Nam phải đăng nhập tài khoản ở đâu để đề nghị cấp thị thực điện tử?",
-    "relevant_chunk_ids": ["8ce915c2b7b4b9f3:6"],
-    "answerable": true
+    "answerable": true,
+    "question": "Cơ quan, tổ chức tại Việt Nam phải đăng nhập tài khoản ở đâu để đề nghị cấp thị thực điện tử?",
+    "expected_url": "https://dichvucong.bocongan.gov.vn/bocongan/bothutuc/tthc?matt=26276",
+    "answer": "Bước 1: Cơ quan, tổ chức tại Việt Nam truy cập Trang thông tin cấp thị thực điện tử thuộc Cổng thông tin điện tử về xuất nhập cảnh (có tên miền tiếng Việt là “https://xuatnhapcanh.gov.vn”, tiếng Anh là “https://immigration.gov.vn”), sử dụng tài khoản điện tử được cấp để đăng nhập vào mục khai và gửi hồ sơ đề nghị cấp thị thực điện tử hoặc Cổng dịch vụ công quốc gia hoặc Cổng dịch vụ công Bộ Công an để đề nghị cấp thị thực điện tử cho người nước ngoài .\nBước 2: Nhập thông tin của người nước ngoài, tải ảnh mặt chân dung và trang nhân thân hộ chiếu. Sau khi thực hiện bước này, cơ quan, tổ chức sẽ được hệ thống cấp mã hồ sơ điện tử.\nBước 3: Sử dụng chữ ký điện tử để xác nhận thông tin đề nghị.\nBước 4: Nộp phí cấp thị thực vào tài khoản quy định tại Trang thông tin cấp thị thực điện tử hoặc Cổng dịch vụ công quốc gia hoặc Cổng dịch vụ công Bộ Công an sau khi nhận mã hồ sơ điện tử của cơ quan quản lý xuất nhập cảnh.\nBước 5: Nhận kết quả:\nCơ quan, tổ chức sử dụng mã hồ sơ điện tử để kiểm tra kết quả giải quyết tại Trang thông tin cấp thị thực điện tử hoặc Cổng dịch vụ công quốc gia hoặc Cổng dịch vụ công Bộ Công an, trường hợp được cấp thị thực điện tử thì thông báo mã hồ sơ điện tử cho người nước ngoài để sử dụng mã hồ sơ điện tử in thị thực điện tử.\nThời gian: 24 giờ/07 ngày."
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Tỷ giá USD/VND chính thức áp dụng hôm nay để quy đổi lệ phí thị thực là bao nhiêu?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Tỷ giá USD/VND chính thức áp dụng hôm nay để quy đổi lệ phí thị thực là bao nhiêu?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Hồ sơ của tôi tại tỉnh hiện được cán bộ nào xử lý và có số điện thoại cá nhân gì?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Hồ sơ của tôi tại tỉnh hiện được cán bộ nào xử lý và có số điện thoại cá nhân gì?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Năm nay tỉnh nào có số lượt khách xuất nhập cảnh qua biên giới cao nhất?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Năm nay tỉnh nào có số lượt khách xuất nhập cảnh qua biên giới cao nhất?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "How many parameters does the YOLO27n checkpoint contain?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "How many parameters does the YOLO27n checkpoint contain?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "What exact GPU and batch size were used to measure YOLO27 inference latency?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What exact GPU and batch size were used to measure YOLO27 inference latency?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "What numerical value of sigma did the autonomous-driving study use for the lane-divider potential?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What numerical value of sigma did the autonomous-driving study use for the lane-divider potential?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "How many object queries are used by the YOLO27m transformer decoder?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "How many object queries are used by the YOLO27m transformer decoder?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "research",
-    "query": "Which optimizer, learning rate, and training schedule were used for the YOLO27 experiments?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Which optimizer, learning rate, and training schedule were used for the YOLO27 experiments?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "What is the maximum request-body upload size enforced by FastAPI by default?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What is the maximum request-body upload size enforced by FastAPI by default?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "What is the monthly price of the paid FastAPI Cloud plan?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What is the monthly price of the paid FastAPI Cloud plan?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "What is FastAPI Cloud's contractual uptime SLA and incident response time?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "What is FastAPI Cloud's contractual uptime SLA and incident response time?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "Which OAuth provider and JWT expiration policy does the FastAPI example configure?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Which OAuth provider and JWT expiration policy does the FastAPI example configure?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "en",
     "collection": "ai_tech",
-    "query": "How many simultaneous WebSocket connections are included in FastAPI Cloud's free tier?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "How many simultaneous WebSocket connections are included in FastAPI Cloud's free tier?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Hộ chiếu phổ thông cấp cho người từ đủ 14 tuổi có thời hạn sử dụng bao nhiêu năm?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Hộ chiếu phổ thông cấp cho người từ đủ 14 tuổi có thời hạn sử dụng bao nhiêu năm?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Phí chuyển phát hộ chiếu phổ thông về nhà tại tỉnh là bao nhiêu đồng?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Phí chuyển phát hộ chiếu phổ thông về nhà tại tỉnh là bao nhiêu đồng?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Thị thực điện tử Việt Nam cho phép người nước ngoài lưu trú tối đa bao nhiêu ngày?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Thị thực điện tử Việt Nam cho phép người nước ngoài lưu trú tối đa bao nhiêu ngày?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Ảnh tải lên khi xin thị thực điện tử phải có độ phân giải tối thiểu bao nhiêu pixel?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Ảnh tải lên khi xin thị thực điện tử phải có độ phân giải tối thiểu bao nhiêu pixel?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Cơ sở lưu trú bị phạt bao nhiêu tiền nếu khai báo tạm trú cho khách nước ngoài chậm một ngày?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Cơ sở lưu trú bị phạt bao nhiêu tiền nếu khai báo tạm trú cho khách nước ngoài chậm một ngày?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Người dân có thể xin cấp hộ chiếu tại tỉnh khác nơi đăng ký thường trú hay không?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Người dân có thể xin cấp hộ chiếu tại tỉnh khác nơi đăng ký thường trú hay không?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Người nước ngoài đang ở Việt Nam phải nộp hồ sơ gì để gia hạn thị thực điện tử?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Người nước ngoài đang ở Việt Nam phải nộp hồ sơ gì để gia hạn thị thực điện tử?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Giấy phép xuất nhập cảnh cấp cho người không quốc tịch có giá trị trong bao nhiêu năm?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Giấy phép xuất nhập cảnh cấp cho người không quốc tịch có giá trị trong bao nhiêu năm?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Giấy thông hành biên giới Việt Nam–Lào được cấp có thời hạn tối đa bao lâu?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Giấy thông hành biên giới Việt Nam–Lào được cấp có thời hạn tối đa bao lâu?",
+    "expected_url": null,
+    "answer": null
   },
   {
     "language": "vi",
     "collection": "immigration",
-    "query": "Người xin thị thực điện tử cần nộp hồ sơ trước ngày nhập cảnh tối thiểu bao nhiêu ngày?",
-    "relevant_chunk_ids": [],
-    "answerable": false
+    "answerable": false,
+    "question": "Người xin thị thực điện tử cần nộp hồ sơ trước ngày nhập cảnh tối thiểu bao nhiêu ngày?",
+    "expected_url": null,
+    "answer": null
   }
 ]

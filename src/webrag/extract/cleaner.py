@@ -1,13 +1,30 @@
 import hashlib
+import html
+import io
+import logging
+import os
 import re
 from html.parser import HTMLParser
+from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+import pypdfium2 as pdfium
+import pytesseract
 import trafilatura
+from PIL import Image
+from pypdf import PdfReader
 
-from webrag.models import Document, RawPage
+from webrag.models import Document, PageSpan, RawPage
 
+logger = logging.getLogger(__name__)
 MIN_MARKDOWN_CHARS = 100
+DEFAULT_OCR_MIN_PAGE_CHARS = 40
+DEFAULT_OCR_DPI = 300
+INLINE_HTML = re.compile(r"</?(?:font|span|u|b)\b[^>]*>", re.IGNORECASE)
+ORPHAN_SUPERSCRIPT = re.compile(
+    r"^[ \t]*<sup\b[^>]*>[ \t]*[†‡∗*]+[ \t]*</sup>[ \t]*(?:\r?\n|$)",
+    re.IGNORECASE | re.MULTILINE,
+)
 GENERIC_TITLES = {
     "bộ công an",
     "cổng dịch vụ công trực tuyến",
@@ -190,6 +207,45 @@ class ProcedureAccordionParser(HTMLParser):
         self.table_cell_parts = []
 
 
+def unescape_entities(text: str) -> str:
+    """Unescape HTML entities until stable, leaving fenced code blocks intact."""
+    lines = text.splitlines(keepends=True)
+    in_code_block = False
+    fence_char = ""
+    fence_len = 0
+    result = []
+    for line in lines:
+        stripped = line.strip()
+        match = re.match(r"^(`{3,}|~{3,})", stripped)
+        if match:
+            delimiter = match.group(1)
+            char = delimiter[0]
+            length = len(delimiter)
+            if not in_code_block:
+                in_code_block = True
+                fence_char = char
+                fence_len = length
+                result.append(line)
+                continue
+            elif char == fence_char and length >= fence_len:
+                in_code_block = False
+                fence_char = ""
+                fence_len = 0
+                result.append(line)
+                continue
+        if in_code_block:
+            result.append(line)
+        else:
+            cur = line
+            while True:
+                nxt = html.unescape(cur)
+                if nxt == cur:
+                    break
+                cur = nxt
+            result.append(cur)
+    return "".join(result)
+
+
 def extract_collapsed_sections(html: str) -> list[tuple[str, str]]:
     parser = ProcedureAccordionParser()
     parser.feed(html)
@@ -198,7 +254,7 @@ def extract_collapsed_sections(html: str) -> list[tuple[str, str]]:
         title = parser.titles.get(panel_id)
         body = normalize_markdown("".join(parts))
         if title and body:
-            sections.append((title, body))
+            sections.append((unescape_entities(title), unescape_entities(body)))
     return sections
 
 
@@ -270,6 +326,14 @@ def normalize_markdown(text: str) -> str:
     return collapsed.strip()
 
 
+def strip_inline_html(text: str) -> str:
+    return INLINE_HTML.sub("", text)
+
+
+def strip_orphan_superscripts(text: str) -> str:
+    return ORPHAN_SUPERSCRIPT.sub("", text)
+
+
 def content_heading(markdown: str) -> str | None:
     """Return the first non-generic heading extracted from the page content."""
     for line in markdown.splitlines():
@@ -282,10 +346,171 @@ def content_heading(markdown: str) -> str | None:
     return None
 
 
+def _positive_int_setting(name: str, default: int) -> int:
+    try:
+        value = int(os.getenv(name, str(default)))
+    except ValueError:
+        logger.warning("%s must be an integer; using %d.", name, default)
+        return default
+    if value < 1:
+        logger.warning("%s must be positive; using %d.", name, default)
+        return default
+    return value
+
+
+def _ocr_available() -> bool:
+    try:
+        pytesseract.get_tesseract_version()
+        languages = set(pytesseract.get_languages(config=""))
+    except (
+        OSError,
+        pytesseract.TesseractError,
+        pytesseract.TesseractNotFoundError,
+    ) as exc:
+        logger.warning("Skipping OCR because Tesseract is unavailable: %s", exc)
+        return False
+
+    missing = {"vie", "eng"} - languages
+    if missing:
+        logger.warning(
+            "Skipping OCR because Tesseract language data is missing: %s.",
+            ", ".join(sorted(missing)),
+        )
+        return False
+    return True
+
+
+def _ocr_image(image: Image.Image) -> str:
+    try:
+        return pytesseract.image_to_string(image, lang="vie+eng").strip()
+    except (OSError, pytesseract.TesseractError, pytesseract.TesseractNotFoundError) as exc:
+        logger.warning("Tesseract OCR failed; keeping native text: %s", exc)
+        return ""
+
+
+def _page_spans(page_texts: list[tuple[str, bool]]) -> tuple[str, list[PageSpan]]:
+    text_parts = []
+    spans = []
+    offset = 0
+    for page_number, (page_text, used_ocr) in enumerate(page_texts, start=1):
+        cleaned_text = normalize_markdown(page_text)
+        start = offset
+        end = start + len(cleaned_text)
+        spans.append(
+            PageSpan(
+                page=page_number,
+                start=start,
+                end=end,
+                ocr=used_ocr,
+            )
+        )
+        text_parts.append(cleaned_text)
+        offset = end + 2
+    return "\n\n".join(text_parts), spans
+
+
+def _document_from_page_text(
+    page: RawPage,
+    collection: str,
+    markdown: str,
+    page_spans: list[PageSpan],
+    title: str,
+    author: str | None = None,
+) -> Document | None:
+    if len(markdown.strip()) < MIN_MARKDOWN_CHARS:
+        return None
+    canonical = canonicalize(page.final_url)
+    return Document(
+        doc_id=sha256_hex(canonical)[:16],
+        url=page.url,
+        canonical_url=canonical,
+        domain=urlparse(canonical).netloc,
+        title=title or page.final_url,
+        author=author,
+        published_at=None,
+        language=None,
+        markdown=markdown,
+        content_hash=sha256_hex(markdown),
+        fetched_at=page.fetched_at,
+        collection=collection,
+        page_spans=page_spans,
+    )
+
+
+def _extract_pdf_document(page: RawPage, collection: str) -> Document | None:
+    reader = PdfReader(io.BytesIO(page.body))
+    page_texts = [(pdf_page.extract_text() or "", False) for pdf_page in reader.pages]
+    ocr_min_chars = _positive_int_setting(
+        "WEBRAG_OCR_MIN_PAGE_CHARS", DEFAULT_OCR_MIN_PAGE_CHARS
+    )
+    pages_needing_ocr = [
+        index for index, (text, _) in enumerate(page_texts) if len(text.strip()) < ocr_min_chars
+    ]
+
+    if pages_needing_ocr and _ocr_available():
+        pdf_document = pdfium.PdfDocument(page.body)
+        try:
+            dpi = _positive_int_setting("WEBRAG_OCR_DPI", DEFAULT_OCR_DPI)
+            for page_index in pages_needing_ocr:
+                pdf_page = pdf_document[page_index]
+                bitmap = pdf_page.render(scale=dpi / 72)
+                try:
+                    image = bitmap.to_pil()
+                    try:
+                        recognized = _ocr_image(image)
+                    finally:
+                        image.close()
+                finally:
+                    bitmap.close()
+                    pdf_page.close()
+                if recognized:
+                    page_texts[page_index] = (recognized, True)
+        finally:
+            pdf_document.close()
+
+    markdown, spans = _page_spans(page_texts)
+    metadata = reader.metadata
+    title = str(metadata.title).strip() if metadata and metadata.title else ""
+    author = str(metadata.author).strip() if metadata and metadata.author else None
+    return _document_from_page_text(
+        page,
+        collection,
+        markdown,
+        spans,
+        title or Path(urlparse(page.final_url).path).name,
+        author,
+    )
+
+
+def _extract_image_document(page: RawPage, collection: str) -> Document | None:
+    if not _ocr_available():
+        return None
+    with Image.open(io.BytesIO(page.body)) as image:
+        rgb_image = image.convert("RGB")
+    try:
+        recognized = _ocr_image(rgb_image)
+    finally:
+        rgb_image.close()
+    markdown, spans = _page_spans([(recognized, bool(recognized))])
+    return _document_from_page_text(
+        page,
+        collection,
+        markdown,
+        spans,
+        Path(urlparse(page.final_url).path).name,
+    )
+
+
 def extract_document(page: RawPage, collection: str = "default") -> Document | None:
     """Extract clean markdown and metadata from a RawPage. Returns None if unusable."""
     if page.status != 200:
         return None
+
+    content_type = page.content_type.split(";", 1)[0].strip().lower()
+    if content_type == "application/pdf":
+        return _extract_pdf_document(page, collection)
+    if content_type in {"image/png", "image/jpeg"}:
+        return _extract_image_document(page, collection)
 
     html = decode_body(page)
     markdown = trafilatura.extract(
@@ -296,15 +521,20 @@ def extract_document(page: RawPage, collection: str = "default") -> Document | N
         include_comments=False,
         favor_precision=True,
     ) or ""
-    cleaned_markdown = normalize_markdown(markdown)
+    cleaned_markdown = normalize_markdown(
+        strip_orphan_superscripts(strip_inline_html(markdown))
+    )
     collapsed_sections = extract_collapsed_sections(html)
     cleaned_markdown = merge_collapsed_sections(cleaned_markdown, collapsed_sections)
+    cleaned_markdown = unescape_entities(cleaned_markdown)
     if len(cleaned_markdown) < MIN_MARKDOWN_CHARS:
         return None
 
     meta = trafilatura.extract_metadata(html)
     canonical = canonicalize(page.final_url)
     metadata_title = meta.title.strip() if meta and meta.title else ""
+    if metadata_title:
+        metadata_title = unescape_entities(metadata_title)
     heading_title = content_heading(cleaned_markdown)
     if not metadata_title or metadata_title.casefold() in GENERIC_TITLES:
         title = heading_title or metadata_title or page.final_url

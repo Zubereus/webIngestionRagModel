@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
+import os
 import socket
 import threading
 import time
@@ -20,6 +21,7 @@ from webrag.fetch.http import DEFAULT_HEADERS
 from webrag.models import RawPage
 
 MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+MAX_PDF_BYTES = int(os.getenv("WEBRAG_MAX_PDF_BYTES", str(20 * 1024 * 1024)))
 MAX_REDIRECTS = 5
 MAX_SITEMAP_URLS = 500
 MAX_RETRIES = 3
@@ -177,7 +179,7 @@ def _safe_get(
     start_host: str,
     accept: str,
     max_bytes: int = MAX_RESPONSE_BYTES,
-    html_only: bool = False,
+    html_or_document_only: bool = False,
     same_host: bool = True,
     headers: dict[str, str] | None = None,
     request_delay: float = DEFAULT_REQUEST_DELAY_SECONDS,
@@ -218,9 +220,26 @@ def _safe_get(
                                 redirect_url = urljoin(current_url, location)
                             else:
                                 content_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
-                                if html_only and content_type not in {"text/html", "application/xhtml+xml"}:
-                                    raise CrawlFetchError(f"Skipped non-HTML content type: {content_type or 'unknown'}.")
-                                body = _read_limited(response, max_bytes)
+                                allowed_types = {
+                                    "text/html",
+                                    "application/xhtml+xml",
+                                    "application/pdf",
+                                    "image/png",
+                                    "image/jpeg",
+                                }
+                                if html_or_document_only and content_type not in allowed_types:
+                                    raise CrawlFetchError(
+                                        f"Skipped unsupported content type: {content_type or 'unknown'}."
+                                    )
+                                response_limit = (
+                                    MAX_PDF_BYTES
+                                    if (
+                                        html_or_document_only
+                                        and content_type == "application/pdf"
+                                    )
+                                    else max_bytes
+                                )
+                                body = _read_limited(response, response_limit)
                                 return response.status_code, content_type, body, str(response.url)
                 except httpx.TransportError:
                     if attempt + 1 == MAX_RETRIES:
@@ -239,13 +258,13 @@ def _safe_get(
 
 
 def fetch_safe_page(url: str) -> RawPage:
-    """Fetch one public HTML page safely for the single-page ingestion flow."""
+    """Fetch one public HTML, PDF, or image page safely."""
     start_host = validate_public_host(url)
     status, content_type, body, final_url = _safe_get(
         url,
         start_host,
-        "text/html,application/xhtml+xml",
-        html_only=True,
+        "text/html,application/xhtml+xml,application/pdf,image/png,image/jpeg",
+        html_or_document_only=True,
         same_host=False,
         headers=DEFAULT_HEADERS,
     )
@@ -287,8 +306,8 @@ def fetch_page(
     status, content_type, body, final_url = _safe_get(
         url,
         start_host,
-        "text/html,application/xhtml+xml",
-        html_only=True,
+        "text/html,application/xhtml+xml,application/pdf,image/png,image/jpeg",
+        html_or_document_only=True,
         request_delay=(
             request_delay
             if request_delay is not None
@@ -310,7 +329,8 @@ def fetch_page(
         raise CrawlFetchError(f"HTTP {status}.")
 
     parser = LinkParser()
-    parser.feed(body.decode("utf-8", errors="replace"))
+    if content_type in {"text/html", "application/xhtml+xml"}:
+        parser.feed(body.decode("utf-8", errors="replace"))
     links = [urljoin(final_url, href) for href in parser.links]
     canonical = urljoin(final_url, parser.canonical_url) if parser.canonical_url else None
     return raw_page, links, canonical

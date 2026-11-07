@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import chromadb
+from chromadb.config import Settings
 
 from webrag.index.vectordb import VectorDBManager
 from webrag.models import Chunk
@@ -12,6 +13,31 @@ from webrag.store.catalog import StorageManager
 
 
 class VectorDBRetrievalTests(unittest.TestCase):
+    @staticmethod
+    def make_vector_chunk(doc_id, ordinal, collection="default", text=None):
+        text = text or f"chunk {ordinal}"
+        return {
+            "chunk_id": f"{doc_id}:{ordinal}",
+            "doc_id": doc_id,
+            "ordinal": ordinal,
+            "text": text,
+            "embed_text": text,
+            "section_path": [],
+            "token_count": len(text.split()),
+            "url": "https://example.org/page",
+            "title": "Example page",
+            "fetched_at": "2026-01-01",
+            "collection": collection,
+        }
+
+    @staticmethod
+    def make_vector_manager(temp_dir):
+        manager = object.__new__(VectorDBManager)
+        manager.client = chromadb.EphemeralClient(settings=Settings(allow_reset=True))
+        manager.client.reset()
+        manager.embedding_cache_path = Path(temp_dir) / "embedding-cache.sqlite3"
+        return manager
+
     def test_clear_embedding_cache_removes_database_adjacent_to_chroma(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             manager = object.__new__(VectorDBManager)
@@ -21,6 +47,24 @@ class VectorDBRetrievalTests(unittest.TestCase):
             manager.clear_embedding_cache()
 
             self.assertFalse(manager.embedding_cache_path.exists())
+
+    def test_index_chunks_persists_optional_page_metadata(self):
+        chunk = self.make_vector_chunk("doc-1", 0, text="page content")
+        chunk.update(page=3, ocr=True)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self.make_vector_manager(temp_dir)
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.1, 0.2]],
+            ):
+                manager.index_chunks([chunk])
+            indexed = manager.get_collection("default").get(
+                include=["metadatas"],
+            )
+
+        self.assertEqual(indexed["metadatas"][0]["page"], 3)
+        self.assertIs(indexed["metadatas"][0]["ocr"], True)
 
     def test_tokens_match_vietnamese_with_or_without_diacritics(self):
         self.assertEqual(
@@ -145,9 +189,7 @@ class VectorDBRetrievalTests(unittest.TestCase):
             )
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            manager = object.__new__(VectorDBManager)
-            manager.client = chromadb.EphemeralClient()
-            manager.embedding_cache_path = Path(temp_dir) / "embedding-cache.sqlite3"
+            manager = self.make_vector_manager(temp_dir)
             collection = manager.get_collection("default")
             collection.upsert(
                 ids=[f"doc-1:{ordinal}" for ordinal in range(5)],
@@ -185,6 +227,131 @@ class VectorDBRetrievalTests(unittest.TestCase):
             set(indexed_chunks["documents"]),
             {"new chunk 0", "new chunk 1", "new chunk 2"},
         )
+
+    def test_replace_doc_embedding_failure_keeps_old_chunks(self):
+        old_chunk = self.make_vector_chunk("doc-1", 0, text="old content")
+        new_chunk = self.make_vector_chunk("doc-1", 0, text="new content")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self.make_vector_manager(temp_dir)
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.1, 0.2]],
+            ):
+                manager.index_chunks([old_chunk])
+
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                side_effect=RuntimeError("embedding failed"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "embedding failed"):
+                    manager.replace_doc("doc-1", "default", [new_chunk])
+
+            indexed = manager.get_collection("default").get(
+                where={"doc_id": "doc-1"},
+                include=["documents"],
+            )
+
+        self.assertEqual(indexed["ids"], ["doc-1:0"])
+        self.assertEqual(indexed["documents"], ["old content"])
+
+    def test_replace_doc_removes_stale_chunks_when_new_version_is_shorter(self):
+        old_chunks = [
+            self.make_vector_chunk("doc-1", ordinal, text=f"old {ordinal}")
+            for ordinal in range(5)
+        ]
+        new_chunks = [
+            self.make_vector_chunk("doc-1", ordinal, text=f"new {ordinal}")
+            for ordinal in range(3)
+        ]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self.make_vector_manager(temp_dir)
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.1, 0.2] for _ in range(5)],
+            ):
+                manager.index_chunks(old_chunks)
+
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.3, 0.4] for _ in new_chunks],
+            ):
+                manager.replace_doc("doc-1", "default", new_chunks)
+
+            indexed = manager.get_collection("default").get(
+                where={"doc_id": "doc-1"},
+                include=["documents"],
+            )
+
+        self.assertEqual(indexed["ids"], ["doc-1:0", "doc-1:1", "doc-1:2"])
+        self.assertEqual(indexed["documents"], ["new 0", "new 1", "new 2"])
+
+    def test_replace_doc_is_idempotent_for_the_same_chunks(self):
+        chunks = [self.make_vector_chunk("doc-1", 0, text="same content")]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self.make_vector_manager(temp_dir)
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.1, 0.2]],
+            ) as embed:
+                manager.replace_doc("doc-1", "default", chunks)
+                manager.replace_doc("doc-1", "default", chunks)
+
+            indexed = manager.get_collection("default").get(
+                where={"doc_id": "doc-1"},
+                include=["documents"],
+            )
+
+        self.assertEqual(embed.call_count, 2)
+        self.assertEqual(indexed["ids"], ["doc-1:0"])
+        self.assertEqual(indexed["documents"], ["same content"])
+
+    def test_replace_doc_cleans_old_collection_only_after_new_index_succeeds(self):
+        old_chunk = self.make_vector_chunk(
+            "doc-1", 0, collection="collection-a", text="old content"
+        )
+        new_chunk = self.make_vector_chunk(
+            "doc-1", 0, collection="collection-b", text="new content"
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = self.make_vector_manager(temp_dir)
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                return_value=[[0.1, 0.2]],
+            ):
+                manager.index_chunks([old_chunk])
+
+            with patch(
+                "webrag.index.vectordb.get_embeddings_batch",
+                side_effect=[
+                    RuntimeError("embedding failed"),
+                    [[0.3, 0.4]],
+                ],
+            ):
+                with self.assertRaisesRegex(RuntimeError, "embedding failed"):
+                    manager.replace_doc("doc-1", "collection-b", [new_chunk])
+
+                old_after_failure = manager.get_collection("collection-a").get(
+                    where={"doc_id": "doc-1"},
+                    include=["documents"],
+                )
+                manager.replace_doc("doc-1", "collection-b", [new_chunk])
+
+            old_after_success = manager.get_collection("collection-a").get(
+                where={"doc_id": "doc-1"},
+                include=["documents"],
+            )
+            new_after_success = manager.get_collection("collection-b").get(
+                where={"doc_id": "doc-1"},
+                include=["documents"],
+            )
+
+        self.assertEqual(old_after_failure["documents"], ["old content"])
+        self.assertEqual(old_after_success["ids"], [])
+        self.assertEqual(new_after_success["documents"], ["new content"])
 
 
 if __name__ == "__main__":

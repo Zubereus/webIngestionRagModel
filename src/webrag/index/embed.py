@@ -14,6 +14,9 @@ import httpx
 
 OLLAMA_API_BASE = "http://localhost:11434"
 DEFAULT_EMBED_MODEL = os.getenv("WEBRAG_EMBED_MODEL", "bge-m3:latest")
+EMBEDDING_TIMEOUT_SECONDS = float(
+    os.getenv("WEBRAG_EMBED_TIMEOUT_SECONDS", "120")
+)
 EMBEDDING_BATCH_SIZE = 16
 logger = logging.getLogger(__name__)
 MODEL_PREFIXES = {
@@ -165,7 +168,7 @@ def get_embedding(
     text: str,
     model: str = DEFAULT_EMBED_MODEL,
     api_base: str = OLLAMA_API_BASE,
-    timeout: float = 30.0,
+    timeout: float = EMBEDDING_TIMEOUT_SECONDS,
 ) -> list[float]:
     """Get vector embedding for a single text using Ollama."""
     url = f"{api_base}/api/embeddings"

@@ -389,14 +389,17 @@ async def run_pipeline_stages(url: str, collection: str, doc_id: str, canonical:
 
         chunks = await asyncio.to_thread(chunk_document, doc)
         async with store_lock:
-            await asyncio.to_thread(vector_db.delete_doc, doc_id, collection)
+            # Index first; only then replace stored files, so embedding failures preserve old data.
+            await asyncio.to_thread(
+                vector_db.replace_doc,
+                doc_id,
+                collection,
+                [chunk.to_dict() for chunk in chunks],
+            )
             await asyncio.to_thread(storage.remove_doc_files, doc_id)
             await asyncio.to_thread(storage.save_raw_snapshot, doc_id, raw_page)
             await asyncio.to_thread(storage.append_document, doc)
             await asyncio.to_thread(storage.append_chunks, chunks)
-            await asyncio.to_thread(
-                vector_db.index_chunks, [chunk.to_dict() for chunk in chunks]
-            )
 
         # Stage 3: Indexing
         storage.update_status(doc_id, canonical, "indexing", content_hash=doc.content_hash, fetched_at=doc.fetched_at, collection=collection)
@@ -528,17 +531,16 @@ async def ingest_crawl_url(
         )
 
         async with store_lock:
-            previous_collection = (existing or {}).get("collection") or collection
             await asyncio.to_thread(
-                vector_db.delete_doc, doc_id, previous_collection
+                vector_db.replace_doc,
+                doc_id,
+                collection,
+                [chunk.to_dict() for chunk in chunks],
             )
             await asyncio.to_thread(storage.remove_doc_files, doc_id)
             await asyncio.to_thread(storage.save_raw_snapshot, doc_id, raw_page)
             await asyncio.to_thread(storage.append_document, doc)
             await asyncio.to_thread(storage.append_chunks, chunks)
-            await asyncio.to_thread(
-                vector_db.index_chunks, [chunk.to_dict() for chunk in chunks]
-            )
 
         storage.update_status(
             doc_id,
@@ -1067,7 +1069,10 @@ def strict_prompt(not_found: str, model: str = GEN_MODEL) -> str:
         f"You are {identity}, a careful research assistant inside WebRAG. The user is asking "
         "about saved pages. Use only the numbered reference passages for page facts. Cite each "
         "supported claim with [n]. Reply in the user's language and be concise. If passages "
-        f"do not answer, reply exactly: {not_found}. Do not add a sources list."
+        "contain bracketed references inside their text, those are source citations, not "
+        "passage IDs; include the passage citation at the end of the claim. "
+        f"If the passages do not answer, reply exactly: {not_found}. "
+        "Do not add a sources list."
     )
 
 
@@ -1082,6 +1087,9 @@ def gemini_strict_prompt(not_found: str) -> str:
         "`answer` fields.\n\n"
         "Rules:\n"
         "- End every factual claim with [n] for the passage or passages that support it.\n"
+        "- Bracketed references inside a passage, such as [10] within a sentence, are "
+        "source citations, not passage IDs. Add the correct passage citation at the "
+        "end of each claim.\n"
         "- Copy numbers, durations, fees, form codes, and legal references exactly as "
         "written, with their units. Never round, convert, or merge ranges.\n"
         "- Compare each passage's Procedure and Section with the question. Similar "
@@ -1191,11 +1199,15 @@ def build_sources(chunks: list[dict[str, Any]]):
     for number, chunk in enumerate(chunks, 1):
         meta = chunk["metadata"]
         score = round(display_score(chunk), 3)
-        citations.append({
+        citation = {
             "n": number, "chunk_id": chunk["chunk_id"],
             "doc_id": meta.get("doc_id", ""), "title": meta.get("title", ""),
             "url": meta.get("url", ""), "score": score,
-        })
+        }
+        for field in ("page", "ocr"):
+            if meta.get(field) is not None:
+                citation[field] = meta[field]
+        citations.append(citation)
         retrieved.append({
             "rank": number, "score": score, "title": meta.get("title", ""),
             "url": meta.get("url", ""), "snippet": chunk["text"][:160].strip(),
@@ -1324,7 +1336,12 @@ def has_valid_citations(
     def normalize_number(number: str) -> str:
         return re.sub(r"\D", "", number).lstrip("0") or "0"
 
-    citation_groups = re.findall(r"\[(\d+(?:\s*[,;]\s*\d+)*)\]", answer)
+    citation_groups = re.findall(
+        r"\[(\d+(?:\s*[,;]\s*\d+)*)\]"
+        r"(?=(?:\s*\[\d+(?:\s*[,;]\s*\d+)*\])*\s*"
+        r"(?:[.!?](?:\s|$)|$|\n))",
+        answer,
+    )
     if not citation_groups:
         return False
     cited_numbers = {
@@ -1429,9 +1446,23 @@ async def ask_stream(req: AskRequest):
             candidate_count = (
                 max(retrieval_top_k, 12) if device else retrieval_top_k
             )
-            found = await asyncio.to_thread(
-                find_chunks, req, top_k=candidate_count
-            )
+            try:
+                found = await asyncio.to_thread(
+                    find_chunks, req, top_k=candidate_count
+                )
+            except httpx.TimeoutException:
+                logger.warning(
+                    "Passage retrieval timed out while requesting a query embedding "
+                    "from Ollama."
+                )
+                yield sse("error", {
+                    "message": (
+                        "Searching timed out while Ollama generated a query embedding. "
+                        "Check that Ollama is running, or increase "
+                        "WEBRAG_EMBED_TIMEOUT_SECONDS."
+                    )
+                })
+                return
             relevant = (
                 found
                 if provider == "gemini" and device
@@ -1777,7 +1808,8 @@ def clear_library():
     for path in (storage.documents_file, storage.chunks_file):
         if path.exists():
             path.unlink()
-    for snapshot in storage.raw_dir.glob("*.html"):
-        snapshot.unlink()
+    for extension in (".html", ".pdf", ".png", ".jpg"):
+        for snapshot in storage.raw_dir.glob(f"*{extension}"):
+            snapshot.unlink()
 
     return {"status": "cleared"}

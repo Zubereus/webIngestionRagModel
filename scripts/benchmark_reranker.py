@@ -32,10 +32,13 @@ def reciprocal_rank(rank: int | None, cutoff: int = FINAL_K) -> float:
 
 
 def relevant_rank(
-    chunks: list[dict[str, Any]], relevant_ids: set[str]
+    chunks: list[dict[str, Any]], expected_url: str | None
 ) -> int | None:
+    if expected_url is None:
+        return None
     for rank, chunk in enumerate(chunks, start=1):
-        if chunk["chunk_id"] in relevant_ids:
+        metadata = chunk.get("metadata") or {}
+        if chunk.get("url", metadata.get("url")) == expected_url:
             return rank
     return None
 
@@ -87,24 +90,25 @@ def main() -> None:
 
     for selected_index, case in enumerate(selected_cases):
         case_number = args.start_index + selected_index + 1
+        question = case["question"]
         start = time.perf_counter()
         retrieved = manager.query(
             case["collection"],
-            case["query"],
+            question,
             n_results=args.candidate_k,
             retrieval_mode="hybrid",
         )
         retrieval_seconds.append(time.perf_counter() - start)
-        relevant_ids = set(case["relevant_chunk_ids"])
-        answerable = case.get("answerable", True)
-        candidate_rank = relevant_rank(retrieved, relevant_ids)
+        expected_url = case.get("expected_url")
+        answerable = case.get("answerable", expected_url is not None)
+        candidate_rank = relevant_rank(retrieved, expected_url)
         gated_candidates = keep_relevant(retrieved, wants_pages=True)
-        gate_rank = relevant_rank(gated_candidates, relevant_ids)
-        baseline_rank = relevant_rank(retrieved[:FINAL_K], relevant_ids)
+        gate_rank = relevant_rank(gated_candidates, expected_url)
+        baseline_rank = relevant_rank(retrieved[:FINAL_K], expected_url)
 
         start = time.perf_counter()
         reranked = rerank_chunks(
-            case["query"],
+            question,
             retrieved,
             FINAL_K,
             device,
@@ -112,7 +116,7 @@ def main() -> None:
             args.max_length,
         )
         rerank_seconds.append(time.perf_counter() - start)
-        reranked_rank = relevant_rank(reranked, relevant_ids)
+        reranked_rank = relevant_rank(reranked, expected_url)
         top_score = (
             float(reranked[0]["reranker_score"])
             if reranked
@@ -121,7 +125,8 @@ def main() -> None:
         rows.append(
             {
                 "language": case["language"],
-                "query": case["query"],
+                "query": question,
+                "expected_url": expected_url,
                 "answerable": answerable,
                 "accepted_by_relevance_gate": bool(gated_candidates),
                 "gate_target_rank": gate_rank,

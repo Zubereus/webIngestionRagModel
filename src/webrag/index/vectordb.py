@@ -23,6 +23,28 @@ RRF_K = 60
 DEADLINE_SECTION_BOOST = 0.025
 
 
+def _chunk_metadata(chunk: dict[str, Any], collection_name: str) -> dict[str, Any]:
+    section_path = chunk.get("section_path", [])
+    section_str = (
+        " > ".join(section_path)
+        if isinstance(section_path, list)
+        else str(section_path)
+    )
+    metadata = {
+        "doc_id": chunk["doc_id"],
+        "url": chunk["url"],
+        "title": chunk["title"],
+        "section_path": section_str,
+        "token_count": chunk.get("token_count", 0),
+        "fetched_at": chunk.get("fetched_at", ""),
+        "collection": collection_name,
+    }
+    for key in ("page", "ocr"):
+        if chunk.get(key) is not None:
+            metadata[key] = chunk[key]
+    return metadata
+
+
 class VectorDBManager:
     def __init__(self, persist_dir: Path | str = DEFAULT_CHROMA_DIR):
         self.persist_dir = Path(persist_dir)
@@ -92,21 +114,7 @@ class VectorDBManager:
 
             pending = []
             for chunk in chunks:
-                section_path = chunk.get("section_path", [])
-                section_str = (
-                    " > ".join(section_path)
-                    if isinstance(section_path, list)
-                    else str(section_path)
-                )
-                metadata = {
-                    "doc_id": chunk["doc_id"],
-                    "url": chunk["url"],
-                    "title": chunk["title"],
-                    "section_path": section_str,
-                    "token_count": chunk.get("token_count", 0),
-                    "fetched_at": chunk.get("fetched_at", ""),
-                    "collection": coll_name,
-                }
+                metadata = _chunk_metadata(chunk, coll_name)
                 existing = existing_by_id.get(chunk["chunk_id"])
                 if (
                     force
@@ -171,20 +179,43 @@ class VectorDBManager:
                 embeddings=embeddings,
                 documents=[item["text"] for item in items],
                 metadatas=[
-                    {
-                        "doc_id": item["doc_id"],
-                        "url": item["url"],
-                        "title": item["title"],
-                        "section_path": " > ".join(item.get("section_path", [])),
-                        "token_count": item.get("token_count", 0),
-                        "fetched_at": item.get("fetched_at", ""),
-                        "collection": collection_name,
-                    }
-                    for item in items
+                    _chunk_metadata(item, collection_name) for item in items
                 ],
             )
             results[collection_name] = len(items)
         return results
+
+    def replace_doc(
+        self,
+        doc_id: str,
+        collection_name: str,
+        chunks: list[dict[str, Any]],
+    ) -> None:
+        """Index a document's new chunks before deleting its stale chunks."""
+        if any(chunk.get("doc_id") != doc_id for chunk in chunks):
+            raise ValueError("All replacement chunks must belong to doc_id")
+
+        chunks_to_index = [
+            {**chunk, "collection": collection_name} for chunk in chunks
+        ]
+        self.index_chunks(chunks_to_index)
+
+        target_name = (
+            collection_name.strip().replace("-", "_").lower() or "default"
+        )
+        new_chunk_ids = {chunk["chunk_id"] for chunk in chunks_to_index}
+        for listed_collection in self.client.list_collections():
+            name = getattr(listed_collection, "name", listed_collection)
+            collection = self.get_collection(str(name))
+            old_data = collection.get(where={"doc_id": doc_id}, include=[])
+            old_ids = old_data.get("ids") or []
+            stale_ids = [
+                chunk_id
+                for chunk_id in old_ids
+                if name != target_name or chunk_id not in new_chunk_ids
+            ]
+            if stale_ids:
+                collection.delete(ids=stale_ids)
 
     def query(
         self,

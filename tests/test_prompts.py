@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 
 from webrag.api.server import (
     AskRequest,
+    build_sources,
     build_system_prompt,
     context_limit,
     fit_context_blocks,
@@ -19,6 +20,62 @@ from webrag.api.server import (
 
 
 class VietnamesePromptTests(unittest.TestCase):
+    def test_embedding_timeout_is_reported_as_an_sse_error(self):
+        from webrag.api import server
+        import httpx
+
+        async def collect_events():
+            response = await server.ask_stream(
+                AskRequest(
+                    question="What does the page explain?",
+                    model="qwen3:4b",
+                )
+            )
+            return "".join([event async for event in response.body_iterator])
+
+        with patch(
+            "webrag.api.server.find_chunks",
+            side_effect=httpx.ReadTimeout("timed out"),
+        ):
+            events = asyncio.run(collect_events())
+
+        self.assertIn("event: error", events)
+        self.assertIn("WEBRAG_EMBED_TIMEOUT_SECONDS", events)
+        self.assertNotIn("event: token", events)
+
+    def test_citations_include_page_fields_only_when_available(self):
+        chunks = [
+            {
+                "chunk_id": "pdf:0",
+                "dense_score": 0.8,
+                "text": "PDF passage",
+                "metadata": {
+                    "doc_id": "pdf",
+                    "title": "PDF guide",
+                    "url": "https://example.org/guide.pdf",
+                    "page": 2,
+                    "ocr": True,
+                },
+            },
+            {
+                "chunk_id": "html:0",
+                "score": 0.7,
+                "text": "HTML passage",
+                "metadata": {
+                    "doc_id": "html",
+                    "title": "HTML guide",
+                    "url": "https://example.org/guide",
+                },
+            },
+        ]
+
+        citations, _, _ = build_sources(chunks)
+
+        self.assertEqual(citations[0]["page"], 2)
+        self.assertIs(citations[0]["ocr"], True)
+        self.assertNotIn("page", citations[1])
+        self.assertNotIn("ocr", citations[1])
+
     def test_gemini_3_5_flash_is_the_default_generation_model(self):
         from webrag.api import server
 
@@ -94,6 +151,7 @@ class VietnamesePromptTests(unittest.TestCase):
         self.assertIn("Reply in the language of the question", prompt)
         self.assertIn("boolean `answerable` and string `answer`", prompt)
         self.assertIn("clearly identify what is missing", prompt)
+        self.assertIn("source citations, not passage IDs", prompt)
         self.assertNotIn("NGÔN NGỮ BẮT BUỘC", prompt)
         self.assertNotIn("Do not switch to Chinese", prompt)
 
@@ -1346,6 +1404,45 @@ class VietnamesePromptTests(unittest.TestCase):
         self.assertEqual(
             prioritize_qualified_chunks(question, chunks),
             [chunks[1], chunks[0]],
+        )
+
+    def test_paper_references_inside_sentences_are_not_passage_citations(self):
+        question = "What findings does the paper report?"
+        source = (
+            "Vision Transformer (ViT) [10]. Self-supervised ViT features contain "
+            "explicit information about semantic segmentation [13]. They reach "
+            "78.3% top-1 on ImageNet with a small ViT. The study also underlines "
+            "the importance of momentum encoder [13] and multi-crop training [3]."
+        )
+        answer = (
+            "Self-supervised ViT features contain explicit information about "
+            "semantic segmentation [13], and reach 78.3% top-1 on ImageNet "
+            "with a small ViT [1]."
+        )
+
+        self.assertTrue(
+            has_valid_citations(
+                answer,
+                [{"title": "Emerging Properties in Self-Supervised Vision Transformers"}],
+                question,
+                [{"text": source}],
+            )
+        )
+        self.assertTrue(
+            has_valid_citations(
+                answer.replace("[1].", "[1] [1]."),
+                [{"title": "Emerging Properties in Self-Supervised Vision Transformers"}],
+                question,
+                [{"text": source}],
+            )
+        )
+        self.assertFalse(
+            has_valid_citations(
+                "The features show semantic segmentation information [13].",
+                [{"title": "Emerging Properties in Self-Supervised Vision Transformers"}],
+                question,
+                [{"text": source}],
+            )
         )
 
     def test_vietnamese_questions_use_vietnamese_not_found_text(self):

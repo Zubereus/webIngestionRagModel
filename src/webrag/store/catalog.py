@@ -171,7 +171,12 @@ class StorageManager:
             conn.commit()
 
     def save_raw_snapshot(self, doc_id: str, page: RawPage) -> Path:
-        file_path = self.raw_dir / f"{doc_id}.html"
+        extension = {
+            "application/pdf": ".pdf",
+            "image/png": ".png",
+            "image/jpeg": ".jpg",
+        }.get(page.content_type.split(";", 1)[0].strip().lower(), ".html")
+        file_path = self.raw_dir / f"{doc_id}{extension}"
         file_path.write_bytes(page.body)
         return file_path
 
@@ -187,9 +192,10 @@ class StorageManager:
     def remove_doc_files(self, doc_id: str) -> None:
         for path in (self.documents_file, self.chunks_file):
             self._rewrite_without(path, doc_id)
-        snapshot = self.raw_dir / f"{doc_id}.html"
-        if snapshot.exists():
-            snapshot.unlink()
+        for extension in (".html", ".pdf", ".png", ".jpg"):
+            snapshot = self.raw_dir / f"{doc_id}{extension}"
+            if snapshot.exists():
+                snapshot.unlink()
 
     @staticmethod
     def _rewrite_without(path: Path, doc_id: str) -> None:

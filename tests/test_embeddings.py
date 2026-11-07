@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 from webrag.index.embed import (
     EMBEDDING_BATCH_SIZE,
+    EMBEDDING_TIMEOUT_SECONDS,
     DEFAULT_EMBED_MODEL,
     embedding_cache_path,
     get_embedding,
@@ -84,7 +85,9 @@ class EmbeddingBatchTests(unittest.TestCase):
         context.__enter__ = Mock(return_value=client)
         context.__exit__ = Mock(return_value=None)
 
-        with patch("webrag.index.embed.httpx.Client", return_value=context):
+        with patch(
+            "webrag.index.embed.httpx.Client", return_value=context
+        ) as client_class:
             result = get_embedding("where to apply?", model="nomic-embed-text:latest")
 
         self.assertEqual(result, [0.1, 0.2])
@@ -94,6 +97,10 @@ class EmbeddingBatchTests(unittest.TestCase):
                 "model": "nomic-embed-text:latest",
                 "prompt": "search_query: where to apply?",
             },
+        )
+        self.assertEqual(
+            client_class.call_args.kwargs["timeout"],
+            EMBEDDING_TIMEOUT_SECONDS,
         )
 
     def test_models_without_prefix_configuration_keep_text_unchanged(self):

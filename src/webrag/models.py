@@ -13,6 +13,14 @@ class RawPage:
 
 
 @dataclass(frozen=True)
+class PageSpan:
+    page: int
+    start: int
+    end: int
+    ocr: bool
+
+
+@dataclass(frozen=True)
 class Document:
     doc_id: str             # sha256(canonical_url)[:16]
     url: str
@@ -26,6 +34,7 @@ class Document:
     content_hash: str       # sha256(markdown) to check if page changed
     fetched_at: str
     collection: str = "default"
+    page_spans: list[PageSpan] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -44,6 +53,8 @@ class Chunk:
     title: str
     fetched_at: str
     collection: str = "default"
+    page: int | None = None
+    ocr: bool | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
